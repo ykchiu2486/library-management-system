@@ -2,6 +2,8 @@
 #include "Book.h"
 #include "Heap.h"
 #include "Similarity.h"
+#include "Show.h"
+#include <fstream>
 #include <iostream>
 using namespace std;
 
@@ -93,17 +95,41 @@ private:
         if (!node) return;
         deleteTree(node->left);
         deleteTree(node->right);
+        delete node->data;
         delete node;
     }
 
-    void inorderPrint(Node* node) const {
-        if (node == nullptr) return;
-        inorderPrint(node->left);
-        node->data->displayBookInfo();
-        cout << endl;
-        inorderPrint(node->right);
-    }
+    // void inorderPrint(Node* node) const {
+    //     if (node == nullptr) return;
+    //     inorderPrint(node->left);
+    //     node->data->displayBookInfo();
+    //     cout << endl;
+    //     inorderPrint(node->right);
+    // }
 
+    void printByChuck(Node* node, int chunk, int& counter) {
+        auto buttom = [counter, chunk]() -> void {
+            cout << string(15, '=') << "Page " << (counter - 1) / chunk + 1 << string(15, '=') << "\n";
+            cout << "Press Enter to Next Page...";
+            cin.get();
+            Show show; show.clear();
+        };
+
+        if(chunk < 1 || chunk > bookNumbers) chunk = bookNumbers;
+        if(!node) return;
+
+        printByChuck(node->left, chunk, counter);
+        cout << string(40, '-') << "\n";
+        node->data->displayBookInfo();
+        counter++;
+        if(counter == this->bookNumbers) {
+            buttom();
+        }
+        else if(counter % chunk == 0) {
+            buttom();
+        }
+        printByChuck(node->right, chunk, counter);
+    }
 
     void postorderHeap(Node* node, Heap& heap, string s) {\
         if(node == nullptr) return;
@@ -112,6 +138,39 @@ private:
         auto& book = node->data;
         book->setSimilarity(similarity(book->getTitle(), s));
         heap.insert(book);
+    }
+
+    Book* privateFind(Node* node, const Book& b) {
+        if (node == nullptr) return nullptr;
+    
+        if (node->data->getTitle() > b.getTitle())
+            return privateFind(node->left, b);  
+        else if (node->data->getTitle() < b.getTitle())
+            return privateFind(node->right, b); 
+        else
+            return node->data; 
+    }
+    
+
+    Book* priavteFindString(Node* node, const string& s) {
+        if(node == nullptr) return nullptr;
+        if (node->data->getTitle() > s)
+            return priavteFindString(node->left, s);  
+        else if (node->data->getTitle() < s)
+            return priavteFindString(node->right, s); 
+        else
+            return node->data; 
+    }
+
+    void priavteWrite(Node* node, ofstream& out) {
+        if(node == nullptr) return;
+        priavteWrite(node->left, out);
+        priavteWrite(node->right, out);
+        out << node->data->getTitle() << "\n";
+        out << node->data->getAuthor() << "\n";
+        out << node->data->getId() << " " << categoryToChar(node->data->getCategory()) << " "
+        << node->data->getYear() << " " << node->data->getCopies() << "\n";
+        out << "\n";
     }
 
 public:
@@ -146,11 +205,14 @@ public:
         return true;
     }
 
-    void printTree() const { inorderPrint(root); }
+    void printTree(int chunk) {
+        int n = 0; 
+        printByChuck(root, chunk, n);
+    }
 
     int getbookNumbers() { return bookNumbers; }
 
-    vector<Book*> searchSimilarity(string s, int n) {
+    const vector<Book*> searchSimilarity(string s, int n) {
         Heap heap;
         postorderHeap(root, heap, s);
         vector<Book*> ans;
@@ -159,5 +221,17 @@ public:
             ans.push_back(heap.pop());
         }
         return ans;
+    }
+
+    Book* find(const Book& b) {
+        return privateFind(root, b);
+    }
+
+    Book* find(const string& s) {
+        return priavteFindString(root, s);
+    }
+
+    void write(ofstream& out) {
+        priavteWrite(root, out);
     }
 };

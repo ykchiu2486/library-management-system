@@ -2,18 +2,20 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include "User.h"
 #include "Book.h"
 #include "Category.h"
 #include "BookDB.h"
 
-void read(const std::string& filename, BookDB& rbt) {
-    std::ifstream in(filename);
+void readBook(const std::string& filename, BookDB& rbt) {
+    ifstream in(filename);
     if (!in.is_open()) {
         std::cerr << "Cannot open file: " << filename << "\n";
         exit(1);
     }
 
-    std::string title, author, line, id;
+    string title, author, line, id;
     char category;
     short year, copies;
 
@@ -26,5 +28,55 @@ void read(const std::string& filename, BookDB& rbt) {
             if(!ans) cerr << "[Warning] Duplicate Book!\n"; 
         };
         getline(in, line);
+    }
+    in.close();
+}
+
+void readUser(string filename, vector<User>& users) {
+    ifstream in(filename);
+    if (!in.is_open()) {
+        std::cerr << "Cannot open file: " << filename << "\n";
+        exit(1);
+    }
+    string name;
+    int books;
+    while(getline(cin, name)) {
+        in >> books;
+        User user(name);
+        for(int i = 0; i < books; i++) {
+            string title, author, id, line;
+            char category; short year, copies;
+            short y, m, d;
+            getline(cin, title);
+            getline(cin, author);
+            getline(cin, line);
+            std::istringstream iss(line);
+            if (iss >> id >> category >> year >> copies >> y >> m >> d) {
+                user.borrowBook(BorrowedBook(title, author, id, chartoCategory(category), year, Date(y, m, d)));
+            }
+        }
+        users.push_back(user);
+    }
+    in.close();
+}
+
+void writeBooks(string filename, BookDB& db) {
+    ofstream out(filename);
+    db.write(out);
+    out.close();
+}
+
+void writeUsers(string filename, vector<User> users) {
+    ofstream out(filename);
+    for(auto us : users) {
+        out << us.getName() << "\n" << us.getBList().size() << "\n";
+        for(auto book : us.getBList()) {
+            out << book.getTitle() << "\n";
+            out << book.getAuthor() << "\n";
+            out << book.getId() << " " << categoryToChar(book.getCategory()) << " " << book.getYear() << " " << book.getCopies() << " ";
+            for(auto i : book.getDateVector() ) {
+                out << i << " ";
+            }
+        }
     }
 }

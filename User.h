@@ -1,47 +1,51 @@
-#pragma once
-#include <string>
+#include "Book.h"
+#include "BookDB.h"
 #include <vector>
-#include "Book.h" 
-#include "Search.h"
+#include <fstream>
+#include <iostream>
 using namespace std;
 
 class User {
-
-    string name; // must be unique
-    vector<BorrowedBook> borrowedList; // max to 50
+private:
+    string name;
+    vector<BorrowedBook> BList;
 
 public:
+    User(string n) : name(n) {};
 
-    User(const string& userName) : name(userName) {} 
+    void borrowBook(Book* book) {
+        BList.push_back(BorrowedBook(*book));
+    }
 
+    void borrowBook(BorrowedBook b) {
+        BList.push_back(b);
+    }
 
+    Book returnBook(int index) {
+        auto book = BList[index];
+        BList.erase(BList.begin() + index);
+        return book;
+    }
 
-    bool borrow(const Book& book) { 
+    string getName() { return name; }
 
-        if (this->borrowedList.size() >= 50) return false;
-        BorrowedBook b(book);
-        int pos = 0;
-        while (pos < borrowedList.size() && borrowedList[pos].getTitle() < b.getTitle()) {
-            ++pos;
+    void showUser() {
+        cout << "Name: " << name << "\n";
+        cout << "Books that user borrow: \n";
+        int overdue = 0;
+        for(auto i : BList) {
+            i.displayBookInfo();
+            cout << "Due: "; i.getDate().show();
+            cout << "\n";
+            cout << "Overdue: ";
+            if(i.isOverdue()) {
+                cout << "yes\n";
+                overdue++;
+            }
+            else cout << "no\n";
         }
-        borrowedList.insert(borrowedList.begin() + pos, b);
-        return true;
+        cout << "Overdue count: " << overdue << "\n";
     }
 
-    bool returnBook(const Book& targetBook) { 
-
-        long long pos = binarySearch<BorrowedBook, Book>(
-            borrowedList, targetBook, 0, borrowedList.size(),
-            [](const BorrowedBook& b) { return b.getTitle(); }, 
-            [](const Book& b) { return b.getTitle(); } 
-
-        );
-
-        if (pos < 0) return false;
-        borrowedList.erase(borrowedList.begin() + pos);
-        return true;
-    }
-
-    string getName() const { return this->name; } 
-    int quota() const { return 50 - static_cast<int>(borrowedList.size()); } 
+    const vector<BorrowedBook>& getBList() { return BList; }
 };

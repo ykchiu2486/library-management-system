@@ -1,6 +1,7 @@
 #ifndef DATE_H
 #define DATE_H
 #include <ctime>
+#include <vector>
 #include <iostream>
 
 class Date {
@@ -62,6 +63,10 @@ public:
 
     void show() const {
         std::cout << year << "-" << month << "-" << day;
+    }
+
+    std::vector<int> getVector() {
+        return { year, month, day};
     }
 };
 #endif

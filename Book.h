@@ -29,16 +29,21 @@ public:
     }
 
     string getTitle() const { return this->title; } 
+    string getAuthor() const { return this->author; }
+    string getId() const { return this->id; }
+    Category getCategory() const { return this->category; }
+    short getYear() const { return this->year; }
+
     virtual void setSimilarity(float s) final { this->similarity = s; }
     virtual float getSimilarity() final { return this->similarity; }
     virtual void setCopies(int c) final { this->copies = c; }
-    virtual int getCopies() final { return copies; }
+    virtual int getCopies() const final { return copies; }
 
     bool operator<(const Book& other) const {
         return title < other.title;
     }
 
-
+    
 };
 
 class BorrowedBook : public Book {
@@ -57,8 +62,21 @@ public:
         this->due = today + 30;
     }
 
+    BorrowedBook(const string& t, const string& a, const string& id, Category c, short y, Date date) 
+    : Book(t, a, id, c, y) {
+        this->due = date;
+    }
+
     bool isOverdue() const {
         Date today;
         return today > this->due;
+    }
+
+    const Date& getDate() {
+        return due;
+    }
+
+    vector<int> getDateVector() {
+        return due.getVector();
     }
 };
