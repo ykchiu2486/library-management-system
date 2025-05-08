@@ -20,12 +20,13 @@ protected:
 public:
     Book(string t, string a, string olid, Category c, short y, short cp) : title(t), author(a), id(olid), category(c), year(y), copies(cp) {}
     Book(string t, string a, string olid, Category c, short y) : title(t), author(a), id(olid), category(c), year(y) {}
-    void displayBookInfo() const {
+    virtual void displayBookInfo() const {
         cout << "Title: " << title << endl;
         cout << "Author: " << author << endl;
         cout << "ID: " << id << endl;
         cout << "Year: " << year << endl;
         cout << "Category: " << categorytoString(category) << endl;
+        cout << "Copy: " << copies << endl;
     }
 
     string getTitle() const { return this->title; } 
@@ -78,5 +79,13 @@ public:
 
     vector<int> getDateVector() {
         return due.getVector();
+    }
+
+    void displayBookInfo() const {
+        cout << "Title: " << title << endl;
+        cout << "Author: " << author << endl;
+        cout << "ID: " << id << endl;
+        cout << "Year: " << year << endl;
+        cout << "Category: " << categorytoString(category) << endl;
     }
 };

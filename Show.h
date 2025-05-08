@@ -15,11 +15,11 @@ struct Show {
         cout << "5. return books\n";
         cout << "6. Add book to db\n";
         cout << "7. Add user\n";
-        cout << "8. clear the terminal\n";
+        cout << "8. find by year\n";
         cout << "0. exit the system\n";
     }
 
     void greeting() {
-        cout << "Welcome using the shitty library management system\n";
+        cout << "Welcome using the library management system\n";
     }
 };

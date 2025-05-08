@@ -173,6 +173,13 @@ private:
         out << "\n";
     }
 
+    void findByYearP(Node* node, short y, vector<Book*>& v) {
+        if(node == nullptr) return;
+        findByYearP(node->left, y, v);
+        if(node->data->getYear() == y) v.push_back(node->data);
+        findByYearP(node->right, y, v);
+    }
+
 public:
     BookDB() : root(nullptr) {}
     ~BookDB() {
@@ -233,5 +240,11 @@ public:
 
     void write(ofstream& out) {
         priavteWrite(root, out);
+    }
+
+    vector<Book*> findByYear(short y) {
+        vector<Book*> v;
+        findByYearP(root, y, v);
+        return v;
     }
 };

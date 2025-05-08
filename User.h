@@ -34,6 +34,7 @@ public:
         cout << "Books that user borrow: \n";
         int overdue = 0;
         for(auto i : BList) {
+            cout << string(30, '-') << "\n";
             i.displayBookInfo();
             cout << "Due: "; i.getDate().show();
             cout << "\n";

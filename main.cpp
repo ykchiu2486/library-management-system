@@ -23,6 +23,25 @@ int safeIntInput(const string& prompt, int min, int max) {
     return value;
 }
 
+char safeCharInput(const string& prompt) {
+    char value;
+    bool validInput = false;
+    char min = 'A';
+    char max = 'Z';
+    do {
+        cout << prompt;
+        if (cin >> value && value >= min && value <= max) {
+            validInput = true;
+        } else {
+            cin.clear(); 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+            cout << "Invalid input. Please enter an char between " << min << " and " << max << ".\n";
+        }
+    } while (!validInput);
+
+    return value;
+}
+
 int main() {
     Show show;
     BookDB db;
@@ -80,6 +99,10 @@ int main() {
         if(book == nullptr) return;
         if(book->getCopies() < 1) {
             cout << "Not enough copies!\n";
+            //TODO
+            cout << string(30, '=') << "\n";
+            cout << "Press Enter to continue..";
+            cin.get();
             return;
         }
         book->setCopies(book->getCopies() - 1);
@@ -112,12 +135,13 @@ int main() {
         cout << "Title: "; getline(cin, title);
         cout << "Author: "; getline(cin, author);
         cout << "ID: "; cin >> id;
-        cout << "Category: "; category = safeIntInput("", 65, 90);
-        cout << "Year; "; year = safeIntInput("", 0, 2030);
+        cout << "Category: "; category = safeCharInput("");
+        cout << "Year: "; year = safeIntInput("", 0, 2030);
         cout << "Copies: "; copies = safeIntInput("", 1, 10);
         bool ans = db.addBook(new Book(title, author, id, chartoCategory(category), year, copies));
-        cout << (ans ? "Success" : "Fail") << "\n";
+        cout << (ans ? "Success" : "Fail, duplicate book!") << "\n";
         cout << string(30, '=') << "\n";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Press Enter to continue..";
         cin.get();
     };
@@ -127,6 +151,21 @@ int main() {
         string name;
         cout << "Name: "; getline(cin, name);
         users.push_back(User(name));
+    };
+
+    auto case8 = [&]() {
+        show.clear();
+        short year = safeIntInput("Please input the year: ", 1, 2030);
+        auto v = db.findByYear(year);
+        cout << string(30, '=') << "\n";
+        for(auto i : v) {
+            i->displayBookInfo();
+            cout << string(30, '-') << "\n";
+        }
+        cout << string(30, '=') << "\n";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Press Enter to continue..";
+        cin.get();
     };
 
     auto case0 = [&]() {
@@ -162,6 +201,9 @@ int main() {
                 break;
             case 7:
                 case7();
+                break;
+            case 8:
+                case8();
                 break;
             case 0:
                 case0();
